@@ -37,21 +37,36 @@ This project is an automatic room occupancy monitor built with Arduino Uno. It u
 ## 📈 Flowchart
 
 ```mermaid
-graph TD
-    A[Start] --> B[N = 5 people max]
-    B --> C{Sensor 1 triggered?}
-    C -->|Yes, N < 5| D[Sensor 2 triggered?]
-    D -->|Yes| E[Increment N]
-    E --> F[Update LCD & LEDs]
-    C -->|No| G{Sensor 2 triggered?}
-    G -->|Yes, N > 0| H[Sensor 1 triggered?]
-    H -->|Yes| I[Decrement N]
-    I --> F
-    G -->|No| J[Loop]
-    D -->|No| J
-    H -->|No| J
-    F --> J
-    J --> B
+---
+config:
+  theme: neo
+  look: classic
+---
+flowchart TD
+    A["Start"] --> B["Initialize LCD and serial"]
+    B --> C["Set pin modes for sensors and LEDs"]
+    C --> D["Loop Start"]
+    D --> E["Turn ON entry and exit green LEDs"]
+    E --> F{"Visitors count = 5?"}
+    F -- Yes --> G["Block entry: turn ON red entry LED"]
+    G --> H["Display: MAX 5 PERSON"]
+    F -- No --> I["Allow entry: green ON, red OFF"]
+    I --> J["Measure distance1 and distance2"]
+    J --> K{"distance1 &lt; 10?"}
+    K -- Yes --> L["Wait 1s, check distance2"]
+    L --> M{"distance2 &lt; 10 AND visitor &lt; 5?"}
+    M -- Yes --> N["visitor++ and display count"]
+    M -- No --> Z["Do nothing"]
+    K -- No --> O{"distance2 &lt; 10?"}
+    O -- Yes --> P["Wait 1s, check distance1"]
+    P --> Q{"distance1 &lt; 10 AND visitor &gt; 0?"}
+    Q -- Yes --> R["visitor-- and display count"]
+    Q -- No --> Z
+    N --> S["Update LED states"]
+    R --> S
+    Z --> S
+    S --> T["Display output"]
+    T --> D
 ```
 
 ---
